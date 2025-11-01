@@ -1,0 +1,33 @@
+/* Smooth scroll for section links */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom font and general style */
+body, h1, h2, h3, h4, h5 {
+  font-family: "Poppins", sans-serif;
+}
+
+/* Navbar shadow and spacing fix */
+.w3-top .w3-bar {
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Center section spacing */
+section {
+  max-width: 1000px;
+  margin: auto;
+}
+
+/* Code block style */
+pre.w3-code {
+  background: #1a1a1a;
+  color: #00ffcc;
+  overflow-x: auto;
+}
+
+/* Footer text */
+footer p {
+  margin: 0;
+  color: #ccc;
+}
