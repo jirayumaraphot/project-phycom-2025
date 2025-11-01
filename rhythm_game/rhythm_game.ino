@@ -4,7 +4,7 @@
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
 const int buttonPins[2] = {7, 8};
-const int LCD_COLS = 12;
+const int LCD_COLS = 11;
 const int LCD_ROWS = 2;
 
 int notes[LCD_ROWS][LCD_COLS];
@@ -139,23 +139,33 @@ void startCountdown() {
 
 void shiftNotesLeft() {
   for (int r = 0; r < LCD_ROWS; r++) {
-    // Move note into hit zone
-    if (notes[r][1] == 1) {
-      notes[r][0] = 2; // note entering hit zone (flash)
-    } else if (notes[r][0] == 2) {
-      notes[r][0] = 0; // clear hit zone flash
+    // If a note was in the hit zone and is leaving it, count as Miss
+    if (notes[r][0] == 2) {
+      // Missed
+      if (r == 0) {
+        feedbackTop = "M";
+        feedbackTimeTop = millis();
+      } else if (r == 1) {
+        feedbackBottom = "M";
+        feedbackTimeBottom = millis();
+      }
+      notes[r][0] = 0; // clear hit zone
     }
 
-    // Shift all notes left (excluding hit zone column 0)
+    // Move note from column 1 into hit zone
+    if (notes[r][1] == 1) {
+      notes[r][0] = 2; // note entering hit zone (flash)
+    }
+
+    // Shift all other notes left (excluding hit zone)
     for (int c = 1; c < LCD_COLS - 1; c++) {
       notes[r][c] = notes[r][c + 1];
     }
 
-    // Spawn new note randomly at far right
+    // Spawn new note at far right randomly
     notes[r][LCD_COLS - 1] = (random(0, 10) < 3) ? 1 : 0;
   }
 }
-
 
 void displayNotes() {
   lcd.clear();
@@ -178,7 +188,7 @@ void displayNotes() {
   }
 
   // Score display on top-right
-  lcd.setCursor(12, 0);
+  lcd.setCursor(11, 0);
   lcd.print("S:");
   lcd.print(score);
   lcd.print("  ");
@@ -193,7 +203,6 @@ void displayNotes() {
     lcd.print(feedbackBottom);
   }
 }
-
 
 void generatePattern() {
   randomSeed(analogRead(A0));
@@ -247,6 +256,3 @@ void handleButtons() {
   // Refresh display
   if (button0 || button1) displayNotes();
 }
-
-
-
