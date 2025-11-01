@@ -12,8 +12,10 @@ unsigned long lastStep = 0;
 int stepInterval = 400; // ms per movement
 int score = 0;
 
-unsigned long feedbackTime = 0;
-String feedbackText = "";
+String feedbackTop = "";
+String feedbackBottom = "";
+unsigned long feedbackTimeTop = 0;
+unsigned long feedbackTimeBottom = 0;
 
 // 🎵 Note
 byte noteChar[8] = {
@@ -89,18 +91,23 @@ void loop() {
     displayNotes();
   }
 
-  // Handle button presses for hits
+  // Handle button presses
   handleButtons();
 
-  // Clear feedback after short delay
-  if (feedbackText != "" && millis() - feedbackTime > 500) {
-    feedbackText = "";
+  // Clear top feedback
+  if (feedbackTop != "" && millis() - feedbackTimeTop > 500) {
+    feedbackTop = "";
+    displayNotes();
+  }
+
+  // Clear bottom feedback
+  if (feedbackBottom != "" && millis() - feedbackTimeBottom > 500) {
+    feedbackBottom = "";
     displayNotes();
   }
 
   delay(50);
 }
-
 
 // -------------------- FUNCTIONS --------------------
 
@@ -132,21 +139,23 @@ void startCountdown() {
 
 void shiftNotesLeft() {
   for (int r = 0; r < LCD_ROWS; r++) {
+    // Move note into hit zone
     if (notes[r][1] == 1) {
-      notes[r][0] = 2; // entering hit zone
+      notes[r][0] = 2; // note entering hit zone (flash)
     } else if (notes[r][0] == 2) {
-      notes[r][0] = 0; // clear flash
+      notes[r][0] = 0; // clear hit zone flash
     }
 
-    // Shift all notes left
+    // Shift all notes left (excluding hit zone column 0)
     for (int c = 1; c < LCD_COLS - 1; c++) {
       notes[r][c] = notes[r][c + 1];
     }
 
-    // Random spawn on far right
+    // Spawn new note randomly at far right
     notes[r][LCD_COLS - 1] = (random(0, 10) < 3) ? 1 : 0;
   }
 }
+
 
 void displayNotes() {
   lcd.clear();
@@ -155,31 +164,36 @@ void displayNotes() {
     for (int c = 0; c < LCD_COLS; c++) {
       lcd.setCursor(c, r);
 
-      if (c == 0) {
+      if (c == 0) { // Hit zone column
         if (notes[r][0] == 2)
-          lcd.write(byte(2)); // flash
+          lcd.write(byte(2)); // flash effect
         else
-          lcd.write(byte(1)); // always show hit zone
+          lcd.write(byte(1)); // solid hit zone
       } else if (notes[r][c] == 1) {
-        lcd.write(byte(0)); // moving note
+        lcd.write(byte(0));   // moving note
       } else {
-        lcd.print(" ");
+        lcd.print(" ");       // empty space
       }
     }
   }
 
-  // Score display
+  // Score display on top-right
   lcd.setCursor(12, 0);
   lcd.print("S:");
   lcd.print(score);
   lcd.print("  ");
 
-  // Feedback display
-  if (feedbackText != "") {
-    lcd.setCursor(13, 1);
-    lcd.print(feedbackText);
+  // Feedback display on bottom-right
+  if (feedbackTop != "") {
+    lcd.setCursor(12, 1);
+    lcd.print(feedbackTop);
+  }
+  if (feedbackBottom != "") {
+    lcd.setCursor(14, 1);
+    lcd.print(feedbackBottom);
   }
 }
+
 
 void generatePattern() {
   randomSeed(analogRead(A0));
@@ -189,45 +203,50 @@ void generatePattern() {
     }
   }
 }
-// -------------------- BUTTON HANDLER FOR L2D --------------------
+
 void handleButtons() {
-  bool button0 = (digitalRead(buttonPins[0]) == LOW);
-  bool button1 = (digitalRead(buttonPins[1]) == LOW);
+  bool button0 = (digitalRead(buttonPins[0]) == LOW); // top
+  bool button1 = (digitalRead(buttonPins[1]) == LOW); // bottom
   int scoreIncrement = 0;
-  String newFeedback = "";
 
-  // Top row
+  // -------- TOP ROW --------
   if (button0) {
-    if (notes[0][0] == 1 || notes[0][0] == 2) {
+    if (notes[0][0] == 1 || notes[0][0] == 2) { // Perfect
       scoreIncrement++;
-      notes[0][0] = 0;       // clear note
-      newFeedback = "P";
-    } else if (notes[0][1] == 1) {
-      newFeedback = "G";
-    } else {
-      newFeedback = "M";
+      notes[0][0] = 0;
+      feedbackTop = "P";
+      feedbackTimeTop = millis();
+    } else if (notes[0][1] == 1) {              // Good
+      feedbackTop = "G";
+      feedbackTimeTop = millis();
+    } else {                                    // Miss
+      feedbackTop = "M";
+      feedbackTimeTop = millis();
     }
   }
 
-  // Bottom row
+  // -------- BOTTOM ROW --------
   if (button1) {
-    if (notes[1][0] == 1 || notes[1][0] == 2) {
+    if (notes[1][0] == 1 || notes[1][0] == 2) { // Perfect
       scoreIncrement++;
-      notes[1][0] = 0;       // clear note
-      if (newFeedback != "P") newFeedback = "P"; // keep best feedback
-    } else if (notes[1][1] == 1) {
-      if (newFeedback != "P") newFeedback = "G";
-    } else {
-      if (newFeedback == "") newFeedback = "M";
+      notes[1][0] = 0;
+      feedbackBottom = "P";
+      feedbackTimeBottom = millis();
+    } else if (notes[1][1] == 1) {              // Good
+      feedbackBottom = "G";
+      feedbackTimeBottom = millis();
+    } else {                                    // Miss
+      feedbackBottom = "M";
+      feedbackTimeBottom = millis();
     }
   }
 
-  // Update global score and feedback if any button pressed
-  if (button0 || button1) {
-    score += scoreIncrement;
-    feedbackText = newFeedback;
-    feedbackTime = millis();
-    displayNotes();
-  }
+  // Update global score
+  score += scoreIncrement;
+
+  // Refresh display
+  if (button0 || button1) displayNotes();
 }
+
+
 
