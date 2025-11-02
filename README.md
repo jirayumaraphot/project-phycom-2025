@@ -5,6 +5,7 @@ Project Title : Rhythm Game
 https://jirayumaraphot.github.io/project-phycom-2025/
 
 ## Project Demo Video
+https://youtu.be/LlutHUOtLBY
 
 ## Project Poster
 
