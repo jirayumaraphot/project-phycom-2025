@@ -17,7 +17,7 @@ String feedbackBottom = "";
 unsigned long feedbackTimeTop = 0;
 unsigned long feedbackTimeBottom = 0;
 
-// 🎵 Note
+// Note
 byte noteChar[8] = {
   B00000,
   B01110,
@@ -29,7 +29,7 @@ byte noteChar[8] = {
   B00000
 };
 
-// ✴️ Hit zone (solid block)
+// Hit zone (solid block)
 byte hitZoneChar[8] = {
   B11111,
   B11111,
@@ -41,7 +41,7 @@ byte hitZoneChar[8] = {
   B11111
 };
 
-// 💫 Hit effect (flash)
+// Hit effect (flash)
 byte hitEffectChar[8] = {
   B00000,
   B01110,
@@ -53,7 +53,7 @@ byte hitEffectChar[8] = {
   B00000
 };
 
-// 🟢 GO symbol
+// GO symbol
 byte goChar[8] = {
   B00000,
   B01110,
