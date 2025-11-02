@@ -8,6 +8,7 @@ https://jirayumaraphot.github.io/project-phycom-2025/
 https://youtu.be/LlutHUOtLBY
 
 ## Project Poster
+## ![Infographic]([https://github.com/user-attachments/assets/21396cd6-27a7-4b23-8cbd-3db35fd09cf1](https://github.com/jirayumaraphot/project-phycom-2025/blob/main/Rhythm%20Game.png))
 
 ## Member
 |Student ID|Name|
